@@ -1,0 +1,9 @@
+title: Amazon Store Router
+description: Tiny helper to route Amazon links to the viewer’s local Amazon store and add your Associate tag.
+theme: jekyll-theme-primer
+url: https://davorg.dev
+baseurl: /amazon-store
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+

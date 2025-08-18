@@ -1,4 +1,17 @@
+---
+title: amazon-store
+layout: default
+---
+
+[Home](/amazon-store/) · [Changelog](/amazon-store/changelog/)
+
 # Amazon Store Router (lo‑fi)
+
+**CDN:**  
+`https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js` (rolling major)  
+`https://cdn.davecross.co.uk/js/amazon-store/v1.2.1/amazon-store.min.js` (pinned)
+
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davorg/amazon_store?sort=semver)
 
 A tiny, dependency‑free helper to route Amazon links to the viewer’s **local store** and add your **Associate tag**.
 Works in any static site. Ship it from your own CDN.

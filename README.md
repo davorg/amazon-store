@@ -8,7 +8,7 @@ permalink: /index.html
 
 **CDN:**  
 `https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js` (rolling major)  
-`https://cdn.davecross.co.uk/js/amazon-store/v1.2.1/amazon-store.min.js` (pinned)
+`https://cdn.davecross.co.uk/js/amazon-store/v1.2.0/amazon-store.min.js` (pinned)
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davorg/amazon-store?sort=semver)
 

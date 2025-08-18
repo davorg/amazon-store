@@ -3,6 +3,19 @@ name: Publish to CDN (on release)
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Version tag (e.g. v1.2.1-rc.0). Leave blank to use package.json"
+        required: false
+      prerelease:
+        description: "Treat as pre-release (don’t update v1 alias)"
+        type: boolean
+        default: true
+      update_alias:
+        description: "Force update v1 alias (overrides prerelease)"
+        type: boolean
+        default: false
 
 jobs:
   build-and-pr:

@@ -1,4 +1,4 @@
-/*! Amazon Store Router v1.0.0 — MIT (ESM) */
+/*! Amazon Store Router v1.1.0 — MIT (ESM) */
 const STORES = {
   AU:{name:"Australia",domain:"amazon.com.au"},
   BR:{name:"Brazil",domain:"amazon.com.br"},
@@ -125,4 +125,49 @@ export function enhanceAll(defaults={}){
   });
 }
 
-export default { STORES, detectRegion, label, url, enhance, enhanceAll };
+export function renderStoreGrid(elOrSelector, opts={}) {
+  const node = typeof elOrSelector === 'string' ? document.querySelector(elOrSelector) : elOrSelector;
+  if (!node) return;
+
+  const d = node.dataset || {};
+  const asin   = opts.asin   ?? d.amazonAsin;
+  const search = opts.search ?? d.amazonSearch;
+  const tag    = opts.tag    ?? d.amazonTag;
+
+  const regionsAttr = (opts.regions ?? d.amazonRegions ?? '').trim();
+  const include = regionsAttr ? regionsAttr.split(',').map(s => s.trim().toUpperCase()) : null;
+
+  const currentFirst = (opts.currentFirst !== undefined)
+    ? !!opts.currentFirst
+    : d.amazonCurrentFirst !== 'false'; // default true
+
+  const linkClass = opts.linkClass ?? d.amazonLinkClass ?? '';
+  const newTab    = opts.newTab    ?? true;
+
+  const current = detectRegion();
+  const entries = Object.entries(STORES)
+    .filter(([code]) => !include || include.includes(code))
+    .sort((a,b) => currentFirst
+      ? (a[0]===current?-1:b[0]===current?1:a[0].localeCompare(b[0]))
+      : a[0].localeCompare(b[0]));
+
+  node.innerHTML = '';
+  for (const [code, meta] of entries) {
+    const href = search ? url(null, { region: code, tag, search })
+                        : url(asin,  { region: code, tag });
+    const a = document.createElement('a');
+    a.href = href; if (newTab) { a.target = '_blank'; a.rel = 'noopener'; }
+    if (linkClass) a.className = linkClass;
+    a.textContent = `Amazon ${meta.name}`;
+    a.setAttribute('data-store', code);
+    node.appendChild(a);
+  }
+}
+
+export function renderStoreGridAll(defaults={}) {
+  document.querySelectorAll('[data-amazon-grid]')
+    .forEach(el => renderStoreGrid(el, defaults));
+}
+
+export default { STORES, detectRegion, label, url, enhance, enhanceAll,
+                 renderStoreGrid, renderStoreGridAll };

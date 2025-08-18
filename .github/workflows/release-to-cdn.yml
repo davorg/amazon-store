@@ -1,4 +1,4 @@
-name: Publish to CDN (on release)
+name: Publish to CDN
 
 on:
   release:
@@ -20,11 +20,17 @@ on:
 jobs:
   build-and-pr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    concurrency:
+      group: publish-to-cdn
+      cancel-in-progress: false
     env:
-      VERSION: ${{ github.event.release.tag_name }}   # e.g. v1.2.0
       CDN_REPO: davorg/daves_cdn
       CDN_BRANCH: main
       CDN_PATH: docs/js/amazon-store
+
     steps:
       - name: Checkout library
         uses: actions/checkout@v4
@@ -34,64 +40,99 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install deps
-        run: npm ci
-
-      - name: Prepare build metadata
+      - name: Compute version & flags
+        id: meta
         run: |
-          echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV         # e.g. v1.2.0
-          echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
-          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+          # Determine version (tag) and flags depending on trigger
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.version_tag }}" ]; then
+            VERSION="${{ inputs.version_tag }}"
+            IS_PRERELEASE="${{ inputs.prerelease }}"
+            FORCE_ALIAS="${{ inputs.update_alias }}"
+          elif [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            IS_PRERELEASE="${{ github.event.release.prerelease }}"
+            FORCE_ALIAS="false"
+          else
+            VERSION="v$(node -p "require('./package.json').version")"
+            IS_PRERELEASE="true"
+            FORCE_ALIAS="false"
+          fi
+
+          VER_CLEAN="${VERSION#v}"
+          MAJOR="$(node -e "const v='${VER_CLEAN}'.split('.')[0]; console.log(v)")"
+
+          echo "version=${VERSION}"       >> $GITHUB_OUTPUT
+          echo "ver_clean=${VER_CLEAN}"   >> $GITHUB_OUTPUT
+          echo "major=${MAJOR}"           >> $GITHUB_OUTPUT
+          echo "is_prerelease=${IS_PRERELEASE}" >> $GITHUB_OUTPUT
+          echo "force_alias=${FORCE_ALIAS}"     >> $GITHUB_OUTPUT
+
+      - name: Install deps
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f package.json ]; then
+            npm install --no-audit --no-fund
+          else
+            echo "No package.json; skipping install"
+          fi
 
       - name: Build
         env:
-          VERSION: ${{ env.VERSION }}
-          SHORT_SHA: ${{ env.SHORT_SHA }}
-          BUILD_DATE: ${{ env.BUILD_DATE }}
+          VERSION: ${{ steps.meta.outputs.ver_clean }}
+          SHORT_SHA: ${{ github.sha }}
+          BUILD_DATE: ${{ github.event.head_commit.timestamp || '' }}
         run: |
-          export VERSION="${VERSION#v}"
-          npm run clean
-          VERSION="$VERSION" npm run build
+          npm run build
+
+      - name: Report sizes (sanity)
+        run: |
+          ls -l dist || true
+          node -e "for (const f of ['amazon-store.js','amazon-store.min.js','amazon-store.esm.js','amazon-store.esm.min.js']){try{const p='dist/'+f;const s=require('fs').statSync(p).size;console.log(String(s).padStart(8),'bytes  ',p)}catch(e){}}"
 
       - name: Checkout CDN repo
         uses: actions/checkout@v4
         with:
           repository: ${{ env.CDN_REPO }}
-          token: ${{ secrets.CDN_PUSH_TOKEN }}     # PAT with contents:write on daves_cdn
+          token: ${{ secrets.CDN_PUSH_TOKEN }}   # PAT: contents:write on daves_cdn
           path: cdn
 
-      - name: Copy artefacts into CDN structure
+      - name: Stage files into CDN repo
         run: |
-          VER="${VERSION#v}"
-          MAJOR="${VER%%.*}"
-          mkdir -p "cdn/${CDN_PATH}/v${VER}" "cdn/${CDN_PATH}/v${MAJOR}"
-          cp dist/amazon-store.esm.js         "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.js"
-          cp dist/amazon-store.esm.min.js     "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.min.js"
-          cp dist/amazon-store.js             "cdn/${CDN_PATH}/v${VER}/amazon-store.js"
-          cp dist/amazon-store.min.js         "cdn/${CDN_PATH}/v${VER}/amazon-store.min.js"
-          cp dist/amazon-store.esm.min.js.map "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.min.js.map"
-          cp dist/amazon-store.min.js.map     "cdn/${CDN_PATH}/v${VER}/amazon-store.min.js.map"
-          # Rolling alias (v1/)
-          cp dist/amazon-store.esm.js         "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.js"
-          cp dist/amazon-store.esm.min.js     "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.min.js"
-          cp dist/amazon-store.js             "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.js"
-          cp dist/amazon-store.min.js         "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.min.js"
-          cp dist/amazon-store.esm.min.js.map "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.min.js.map"
-          cp dist/amazon-store.min.js.map     "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.min.js.map"
-          # Docs (optional)
-          cp README.md CHANGELOG.md "cdn/${CDN_PATH}/v${VER}/" || true
+          VER="${{ steps.meta.outputs.ver_clean }}"
+          MAJOR="${{ steps.meta.outputs.major }}"
+          mkdir -p "cdn/${{ env.CDN_PATH }}/v${VER}" "cdn/${{ env.CDN_PATH }}/v${MAJOR}"
+
+          # Versioned (immutable)
+          cp dist/amazon-store.esm.js      "cdn/${{ env.CDN_PATH }}/v${VER}/amazon-store.esm.js"
+          [ -f dist/amazon-store.esm.min.js ] && cp dist/amazon-store.esm.min.js  "cdn/${{ env.CDN_PATH }}/v${VER}/amazon-store.esm.min.js" || true
+          cp dist/amazon-store.js          "cdn/${{ env.CDN_PATH }}/v${VER}/amazon-store.js"
+          cp dist/amazon-store.min.js      "cdn/${{ env.CDN_PATH }}/v${VER}/amazon-store.min.js"
+          [ -f dist/amazon-store.esm.min.js.map ] && cp dist/amazon-store.esm.min.js.map "cdn/${{ env.CDN_PATH }}/v${VER}/" || true
+          [ -f dist/amazon-store.min.js.map ]     && cp dist/amazon-store.min.js.map     "cdn/${{ env.CDN_PATH }}/v${VER}/" || true
+          cp README.md CHANGELOG.md "cdn/${{ env.CDN_PATH }}/v${VER}/" || true
+
+          # Update v1 alias only if not prerelease OR forced
+          if [ "${{ steps.meta.outputs.is_prerelease }}" != "true" ] || [ "${{ steps.meta.outputs.force_alias }}" = "true" ]; then
+            cp dist/amazon-store.esm.js      "cdn/${{ env.CDN_PATH }}/v${MAJOR}/amazon-store.esm.js"
+            [ -f dist/amazon-store.esm.min.js ] && cp dist/amazon-store.esm.min.js  "cdn/${{ env.CDN_PATH }}/v${MAJOR}/amazon-store.esm.min.js" || true
+            cp dist/amazon-store.js          "cdn/${{ env.CDN_PATH }}/v${MAJOR}/amazon-store.js"
+            cp dist/amazon-store.min.js      "cdn/${{ env.CDN_PATH }}/v${MAJOR}/amazon-store.min.js"
+          fi
 
       - name: Create PR in CDN repo
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.CDN_PUSH_TOKEN }}
           path: cdn
-          branch: "amazon-store/${{ env.VERSION }}"
-          title: "amazon_store ${{ env.VERSION }} → CDN"
-          commit-message: "amazon_store: publish ${{ env.VERSION }} (update v1 alias)"
-          body: |
-            Publishes **amazon_store ${{ env.VERSION }}** to the CDN:
-            - `js/amazon-store/${{ env.VERSION }}/amazon-store.{esm.js,js,min.js}`
-            - `js/amazon-store/v1/` updated to same build
+          branch: "amazon-store/${{ steps.meta.outputs.version }}"
           base: ${{ env.CDN_BRANCH }}
+          title: "amazon_store ${{ steps.meta.outputs.version }} → CDN"
+          commit-message: "amazon_store: publish ${{ steps.meta.outputs.version }} (update v${{ steps.meta.outputs.major }} alias: ${{ (steps.meta.outputs.is_prerelease != 'true') || (steps.meta.outputs.force_alias == 'true') }})"
+          body: |
+            Publishes **amazon_store ${{ steps.meta.outputs.version }}** to the CDN repo.
+
+            - Versioned: `js/amazon-store/${{ steps.meta.outputs.version }}/…`
+            - Alias v${{ steps.meta.outputs.major }}/ updated: **${{ (steps.meta.outputs.is_prerelease != 'true') || (steps.meta.outputs.force_alias == 'true') }}**
+            - This PR is safe to close without merging (no deploy happens until merge).
 

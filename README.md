@@ -1,11 +1,10 @@
 ---
 title: amazon-store
 layout: default
+permalink: /index.html
 ---
 
 [Home](/amazon-store/) · [Changelog](/amazon-store/changelog/)
-
-# Amazon Store Router (lo‑fi)
 
 **CDN:**  
 `https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js` (rolling major)  

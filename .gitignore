@@ -1,0 +1,8 @@
+# dependencies
+node_modules/
+# build artefacts
+dist/
+# logs/temp
+*.log
+.DS_Store
+

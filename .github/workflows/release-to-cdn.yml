@@ -1,0 +1,78 @@
+name: Publish to CDN (on release)
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-pr:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.release.tag_name }}   # e.g. v1.2.0
+      CDN_REPO: davorg/daves_cdn
+      CDN_BRANCH: main
+      CDN_PATH: docs/js/amazon-store
+    steps:
+      - name: Checkout library
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Prepare build metadata
+        run: |
+          echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV         # e.g. v1.2.0
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+
+      - name: Build
+        env:
+          VERSION: ${{ env.VERSION }}
+          SHORT_SHA: ${{ env.SHORT_SHA }}
+          BUILD_DATE: ${{ env.BUILD_DATE }}
+        run: |
+          export VERSION="${VERSION#v}"
+          npm run clean
+          VERSION="$VERSION" npm run build
+
+      - name: Checkout CDN repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CDN_REPO }}
+          token: ${{ secrets.CDN_PUSH_TOKEN }}     # PAT with contents:write on daves_cdn
+          path: cdn
+
+      - name: Copy artefacts into CDN structure
+        run: |
+          VER="${VERSION#v}"
+          MAJOR="${VER%%.*}"
+          mkdir -p "cdn/${CDN_PATH}/v${VER}" "cdn/${CDN_PATH}/v${MAJOR}"
+          cp dist/amazon-store.esm.js "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.js"
+          cp dist/amazon-store.js     "cdn/${CDN_PATH}/v${VER}/amazon-store.js"
+          cp dist/amazon-store.min.js "cdn/${CDN_PATH}/v${VER}/amazon-store.min.js"
+          # Rolling alias (v1/)
+          cp dist/amazon-store.esm.js "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.js"
+          cp dist/amazon-store.js     "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.js"
+          cp dist/amazon-store.min.js "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.min.js"
+          # Docs (optional)
+          cp README.md CHANGELOG.md "cdn/${CDN_PATH}/v${VER}/" || true
+
+      - name: Create PR in CDN repo
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.CDN_PUSH_TOKEN }}
+          path: cdn
+          branch: "amazon-store/${{ env.VERSION }}"
+          title: "amazon_store ${{ env.VERSION }} → CDN"
+          commit-message: "amazon_store: publish ${{ env.VERSION }} (update v1 alias)"
+          body: |
+            Publishes **amazon_store ${{ env.VERSION }}** to the CDN:
+            - `js/amazon-store/${{ env.VERSION }}/amazon-store.{esm.js,js,min.js}`
+            - `js/amazon-store/v1/` updated to same build
+          base: ${{ env.CDN_BRANCH }}
+

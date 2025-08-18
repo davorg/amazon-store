@@ -33,8 +33,8 @@ jobs:
 
     steps:
       - name: Preflight - assert required secrets
-          run: |
-            : "${{ secrets.CDN_PUSH_TOKEN?Missing secret: CDN_PUSH_TOKEN (needed to push PR branch to davorg/daves_cdn) }}"
+        run: |
+          : "${{ secrets.CDN_PUSH_TOKEN?Missing secret: CDN_PUSH_TOKEN (needed to push PR branch to davorg/daves_cdn) }}"
 
       - name: Checkout library
         uses: actions/checkout@v5

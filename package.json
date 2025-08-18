@@ -14,7 +14,7 @@
   "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
   "scripts": {
     "clean": "rm -rf dist && mkdir -p dist",
-    "build:rollup": "rollup -C",
+    "build:rollup": "rollup -c",
     "minify:umd": "terser dist/amazon-store.js -o dist/amazon-store.min.js --compress --mangle --toplevel --comments=/^!/ --source-map \"filename=dist/amazon-store.min.js.map,url=amazon-store.min.js.map\"",
     "minify:esm": "terser dist/amazon-store.esm.js -o dist/amazon-store.esm.min.js --compress --mangle --toplevel --module --comments=/^!/ --source-map \"filename=dist/amazon-store.esm.min.js.map,url=amazon-store.esm.min.js.map\"",
     "build": "npm run clean && npm run build:rollup && npm run minify:umd && npm run minify:esm"

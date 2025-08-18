@@ -32,8 +32,12 @@ jobs:
       CDN_PATH: docs/js/amazon-store
 
     steps:
+      - name: Preflight: assert required secrets
+          run: |
+            : "${{ secrets.CDN_PUSH_TOKEN?Missing secret: CDN_PUSH_TOKEN (needed to push PR branch to davorg/daves_cdn) }}"
+
       - name: Checkout library
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -91,7 +95,7 @@ jobs:
           node -e "for (const f of ['amazon-store.js','amazon-store.min.js','amazon-store.esm.js','amazon-store.esm.min.js']){try{const p='dist/'+f;const s=require('fs').statSync(p).size;console.log(String(s).padStart(8),'bytes  ',p)}catch(e){}}"
 
       - name: Checkout CDN repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ env.CDN_REPO }}
           token: ${{ secrets.CDN_PUSH_TOKEN }}   # PAT: contents:write on daves_cdn
@@ -121,7 +125,7 @@ jobs:
           fi
 
       - name: Create PR in CDN repo
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CDN_PUSH_TOKEN }}
           path: cdn

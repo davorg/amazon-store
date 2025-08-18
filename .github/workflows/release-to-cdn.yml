@@ -52,15 +52,19 @@ jobs:
           VER="${VERSION#v}"
           MAJOR="${VER%%.*}"
           mkdir -p "cdn/${CDN_PATH}/v${VER}" "cdn/${CDN_PATH}/v${MAJOR}"
-          cp dist/amazon-store.esm.js     "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.js"
-          cp dist/amazon-store.esm.min.js "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.min.js"
-          cp dist/amazon-store.js         "cdn/${CDN_PATH}/v${VER}/amazon-store.js"
-          cp dist/amazon-store.min.js     "cdn/${CDN_PATH}/v${VER}/amazon-store.min.js"
+          cp dist/amazon-store.esm.js         "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.js"
+          cp dist/amazon-store.esm.min.js     "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.min.js"
+          cp dist/amazon-store.js             "cdn/${CDN_PATH}/v${VER}/amazon-store.js"
+          cp dist/amazon-store.min.js         "cdn/${CDN_PATH}/v${VER}/amazon-store.min.js"
+          cp dist/amazon-store.esm.min.js.map "cdn/${CDN_PATH}/v${VER}/amazon-store.esm.min.js.map"
+          cp dist/amazon-store.min.js.map     "cdn/${CDN_PATH}/v${VER}/amazon-store.min.js.map"
           # Rolling alias (v1/)
-          cp dist/amazon-store.esm.js     "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.js"
-          cp dist/amazon-store.esm.min.js "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.min.js"
-          cp dist/amazon-store.js         "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.js"
-          cp dist/amazon-store.min.js     "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.min.js"
+          cp dist/amazon-store.esm.js         "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.js"
+          cp dist/amazon-store.esm.min.js     "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.min.js"
+          cp dist/amazon-store.js             "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.js"
+          cp dist/amazon-store.min.js         "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.min.js"
+          cp dist/amazon-store.esm.min.js.map "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.esm.min.js.map"
+          cp dist/amazon-store.min.js.map     "cdn/${CDN_PATH}/v${MAJOR}/amazon-store.min.js.map"
           # Docs (optional)
           cp README.md CHANGELOG.md "cdn/${CDN_PATH}/v${VER}/" || true
 

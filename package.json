@@ -1,6 +1,6 @@
 {
   "name": "amazon-store",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Tiny helper to route Amazon links to the viewer’s local store (UMD + ESM).",
   "type": "module",
   "license": "MIT",
@@ -14,7 +14,12 @@
       "default": "./dist/amazon-store.js"
     }
   },
-  "files": ["dist", "README.md", "CHANGELOG.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "clean": "rm -rf dist && mkdir -p dist",
     "build:rollup": "rollup -c",
@@ -28,4 +33,3 @@
     "terser": "^5.31.0"
   }
 }
-

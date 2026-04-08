@@ -4,7 +4,10 @@
   "description": "Tiny helper to route Amazon links to the viewer’s local store (UMD + ESM).",
   "type": "module",
   "license": "MIT",
-  "repository": "https://github.com/YOURUSER/amazon_store",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davorg/amazon-store.git"
+  },
   "exports": {
     ".": {
       "import": "./dist/amazon-store.esm.js",

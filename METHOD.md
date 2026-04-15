@@ -119,9 +119,9 @@ The hostname of the current page (`location.hostname`) is examined:
 - `.it` → **IT**
 - `.nl` → **NL**
 - `.ca` → **CA**
-- `.au` → **AU** (note: Australian ccTLD is `.com.au`; this matches `.au`)
+- `.au` → **AU** (note: the standard Australian domain is `.com.au`; the TLD check extracts the last segment, so `amazon.com.au` yields `au` and does match)
 - `.in` → **IN**
-- `.jp` → **JP** (note: Japanese domain is `.co.jp`; `.jp` alone does match)
+- `.jp` → **JP** (note: the standard Japanese domain is `amazon.co.jp`; the TLD check extracts `jp` from that, so it does match)
 - `.mx` → **MX**
 - `.br` → **BR**
 - `.com` — intentionally *not* mapped (ambiguous; many non-US sites use `.com`)
@@ -197,9 +197,9 @@ step to investigate when the wrong store is chosen.
    common cause. The visitor's browser may be set to `en-US` or another
    language with no Italian locale suffix. Check the console output for step 3.
 
-2. **Time zone not in the list.** `Europe/Milan`, `Europe/Vatican`, and other
-   valid Italian IANA time zones are **not** currently in the time-zone table.
-   Only `Europe/Rome` maps to IT. If the browser reports a different zone,
+2. **Time zone not in the list.** `Europe/Milan` and other valid Italian IANA
+   time zones are **not** currently in the time-zone table. Only `Europe/Rome`
+   maps to IT. If the browser reports a different zone (e.g. `Europe/Milan`),
    step 4 will not match.
 
 3. **`<html lang>` set to `en` (no country code).** A `lang="en"` attribute

@@ -167,21 +167,27 @@ site; pass `defaultRegion` if you'd prefer a different fallback.
 Open the browser's developer console on the affected page and run:
 
 ```js
-// Step 3 — navigator languages
-console.log('navigator.languages:', navigator.languages);
-console.log('navigator.language:', navigator.language);
-
-// Step 4 — time zone
-console.log('timeZone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
-
-// Step 5 — html lang
-console.log('html lang:', document.documentElement.lang);
-
-// Step 6 — hostname
-console.log('hostname:', location.hostname);
+// Step 1 — explicit override on individual elements (check a representative element)
+// Look for data-amazon-region attributes set in the HTML:
+document.querySelectorAll('[data-amazon-region]').forEach(el =>
+  console.log('Step 1 – data-amazon-region on element:', el, el.dataset.amazonRegion)
+);
 
 // Step 2 — stored manual override
-console.log('localStorage override:', localStorage.getItem('amazonStoreRegion'));
+console.log('Step 2 – localStorage override:', localStorage.getItem('amazonStoreRegion'));
+
+// Step 3 — navigator languages
+console.log('Step 3 – navigator.languages:', navigator.languages);
+console.log('Step 3 – navigator.language:', navigator.language);
+
+// Step 4 — time zone
+console.log('Step 4 – timeZone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+// Step 5 — html lang
+console.log('Step 5 – html lang:', document.documentElement.lang);
+
+// Step 6 — hostname
+console.log('Step 6 – hostname:', location.hostname);
 
 // Final result (if the library is loaded)
 console.log('detected region:', AmazonStore.detectRegion());

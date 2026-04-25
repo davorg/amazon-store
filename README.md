@@ -1,4 +1,4 @@
-[Home](/amazon-store/) · [Changelog](/amazon-store/changelog/)
+[Home](/amazon-store/) · [Changelog](https://github.com/davorg/amazon-store/blob/main/CHANGELOG.md)
 
 **CDN:**  
 `https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js` (rolling major)  

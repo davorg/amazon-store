@@ -1,6 +1,6 @@
 {
   "name": "amazon-store",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Tiny helper to route Amazon links to the viewer’s local store (UMD + ESM).",
   "type": "module",
   "license": "MIT",

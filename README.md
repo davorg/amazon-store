@@ -4,8 +4,8 @@
 
 **CDN:**  
 
-* https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js (rolling major version)
-* https://cdn.davecross.co.uk/js/amazon-store/v1.2.0/amazon-store.min.js (pinned version)
+* [https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js](https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js) (rolling major version)
+* [https://cdn.davecross.co.uk/js/amazon-store/v1.2.2/amazon-store.min.js](https://cdn.davecross.co.uk/js/amazon-store/v1.2.2/amazon-store.min.js) (pinned version)
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davorg/amazon-store?sort=semver)
 ![npm](https://img.shields.io/npm/v/amazon-store)

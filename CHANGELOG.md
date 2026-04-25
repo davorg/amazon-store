@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.2 — Documentation and npm availability
+
+- **Available on npm**: The library can now be installed directly via `npm install amazon-store`, making it easy to use in bundled projects.
+- **New `METHOD.md`**: Added detailed documentation explaining the region‑detection algorithm and the browser signals the library uses to pick the right Amazon storefront.
+- **README improvements**: Added npm installation instructions, version badge, and a link to the package on npmjs.com.
+- **Docs fixes**: Clarified TLD behaviour for `.au` / `.jp` and corrected the step‑by‑step debugging snippet in `METHOD.md`.
+- **Website**: The Changelog is now linked from the README header for easier discovery.
+
+## 1.2.1 — Maintenance and publishing infrastructure
+
+- **Fixed `package.json` metadata**: The `repository` field now correctly points to the GitHub repository, so npm tooling (e.g. `npm repo`) works as expected.
+- **Security**: Updated dependencies to address issues flagged by `npm audit`.
+- **Docs**: Added `NPM_PUBLISH.md` — a step‑by‑step guide for maintainers publishing new releases to npm.
+
 ## 1.2.0 — Browser‑first detection, safer enhancement
 - **Region detection is now browser‑first**: `navigator.languages` → time zone → `<html lang>` → hostname TLD → fallback.
   - Manual overrides still work via `enhanceAll({ region })` or per‑element `data-amazon-region="UK"`.

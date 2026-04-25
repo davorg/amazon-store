@@ -1,12 +1,13 @@
 # Amazon Store
 
-[Home](/amazon-store/) · [Changelog](https://github.com/davorg/amazon-store/blob/main/CHANGELOG.md)
+[Home](/amazon-store/) · [Changelog](https://github.com/davorg/amazon-store/blob/main/CHANGELOG.md) · [npm](https://www.npmjs.com/package/amazon-store)
 
 **CDN:**  
 `https://cdn.davecross.co.uk/js/amazon-store/v1/amazon-store.min.js` (rolling major)  
 `https://cdn.davecross.co.uk/js/amazon-store/v1.2.0/amazon-store.min.js` (pinned)
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davorg/amazon-store?sort=semver)
+![npm](https://img.shields.io/npm/v/amazon-store)
 
 A tiny, dependency‑free helper to route Amazon links to the viewer’s **local store** and add your **Associate tag**.
 Works in any static site. Ship it from your own CDN.
@@ -65,6 +66,25 @@ Markup for a **button**:
   enhanceAll({ tag: 'davblog-21' });
   renderStoreGridAll({ tag: 'davblog-21' });
 </script>
+```
+
+### npm
+
+Install via npm for use in a bundled project:
+
+```bash
+npm install amazon-store
+```
+
+Then import in your build:
+
+```js
+import { enhanceAll, renderStoreGridAll } from 'amazon-store';
+
+document.addEventListener('DOMContentLoaded', () => {
+  enhanceAll({ tag: 'davblog-21' });
+  renderStoreGridAll({ tag: 'davblog-21' });
+});
 ```
 
 ---

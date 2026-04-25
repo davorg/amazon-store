@@ -1,3 +1,5 @@
+# Amazon Store
+
 [Home](/amazon-store/) · [Changelog](https://github.com/davorg/amazon-store/blob/main/CHANGELOG.md)
 
 **CDN:**  
